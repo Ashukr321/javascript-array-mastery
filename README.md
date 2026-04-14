@@ -4,6 +4,16 @@ Welcome to the **JavaScript Array Mastery** repository! This project is designed
 
 ![array](./resources/array%20(1).png)
 
+[Array part 1 ](./resources/array%20part%201.pdf)
+- Array 
+- indexing 
+- mutable vs immutable 
+- length properties
+- sparse array 
+- array vs object 
+
+--- 
+
 ## Repository Structure
 
 - `01-basics/`: Fundamental concepts.
