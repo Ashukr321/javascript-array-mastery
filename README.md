@@ -2,6 +2,8 @@
 
 Welcome to the **JavaScript Array Mastery** repository! This project is designed to help you master JavaScript arrays, from basics to advanced topics, practice patterns, and real-world use cases.
 
+![array](./resources/array%20(1).png)
+
 ## Repository Structure
 
 - `01-basics/`: Fundamental concepts.
