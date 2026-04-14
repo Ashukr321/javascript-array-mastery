@@ -18,6 +18,15 @@ Welcome to the **JavaScript Array Mastery** repository! This project is designed
 
 - `01-basics/`: Fundamental concepts.
 - `02-core-methods/`: In-depth study of array methods (mutating, non-mutating, accessor, iteration, creation).
+
+    ```bash
+    - mutating
+    - non-mutating
+    - accessor
+    - iteration
+    - creation
+    ```
+
 - `03-important-concepts/`: Essential concepts like shallow vs. deep copy, immutability, etc.
 - `04-advanced-topics/`: Complex methods and deep dives.
 - `05-practice-patterns/`: Common algorithms and patterns using arrays.

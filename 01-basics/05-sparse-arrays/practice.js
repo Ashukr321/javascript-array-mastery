@@ -22,3 +22,11 @@ console.log(num);
 const arr = new Array(5);
 console.log(arr);
 //  assign at higher index value it will created sparse array 
+
+
+// array methods classify into 4 sections 
+
+// 1. Accessor methods 
+// 2. iteration methods 
+// 3. mutating methods 
+// 4. non-mutating methods
