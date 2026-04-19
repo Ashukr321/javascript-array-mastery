@@ -31,3 +31,7 @@ const user= {
 
 const userArray = Object.entries(user).map(([key,value])=>console.log(key,value))
 // console.log(userArray); // object key and value converted into array 
+
+// Object.keys(); return the array of objects  the keys 
+// Object.values(); return the array of object values 
+// Object.entries(); return the array of each key and values of the object 
