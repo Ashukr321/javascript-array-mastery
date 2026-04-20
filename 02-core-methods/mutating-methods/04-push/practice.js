@@ -1,5 +1,7 @@
 // Practice: push()
 
+// add new element at the  end of the array item and it mutate the original array 
+
 const stack = [];
 
 // 1. Push numbers 1, 2, 3 into the stack.
@@ -15,3 +17,5 @@ console.log(stack); // [1, 2, 3]
 const newLength = stack.push('hello', 'world');
 console.log(newLength); // 5
 console.log(stack); // [1, 2, 3, 'hello', 'world']
+let newArr = stack.push("Ashutosh");
+console.log(newArr);

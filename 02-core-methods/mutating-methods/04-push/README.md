@@ -1,6 +1,6 @@
 # push()
 
-The `push()` method adds one or more elements to the end of an array and returns the new length of the array.
+The `push()` method adds one or more elements to the end of an array and returns the new length of  the original array.
 
 ```javascript
 const animals = ['pigs', 'goats', 'sheep'];
