@@ -28,6 +28,7 @@ Welcome to the **JavaScript Array Mastery** repository! This project is designed
     ```
 
 - `03-important-concepts/`: Essential concepts like shallow vs. deep copy, immutability, etc.
+    ![](03-important-concepts\01-array-chaining\image.png)
 - `04-advanced-topics/`: Complex methods and deep dives.
 - `05-practice-patterns/`: Common algorithms and patterns using arrays.
 - `06-interview-questions/`: Categorized interview questions.
