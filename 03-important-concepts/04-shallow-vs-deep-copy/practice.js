@@ -12,10 +12,14 @@ const users = [
 // 5. Change the name of the second user in the deep copy to 'Robert'.
 // 6. Log the original users array to see if it was affected.
 
-const shallowCopy = [...users];
-shallowCopy[0].name = 'Alicia';
+const shallowCopy = [...users]; // new array is created but object inside array is not copy object reference is still shared 
+shallowCopy[0].name = 'Alicia'; // change it will affected the original array object
 console.log(users[0].name); // Alicia (Affected!)
 
-const deepCopy = JSON.parse(JSON.stringify(users));
+const deepCopy = JSON.parse(JSON.stringify(users)); //  this is use of the deep copy // json.parse(); is always create the new array 
 deepCopy[1].name = 'Robert';
 console.log(users[1].name); // Bob (Not affected!)
+
+// for the deep copy modern ways is to use structuredClone(array);
+ 
+
