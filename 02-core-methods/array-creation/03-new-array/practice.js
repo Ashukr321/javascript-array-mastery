@@ -1,4 +1,4 @@
 // Practice: new-array
 
-// Add your practice code here
-
+const arr = new Array(1,2,3,); // created inside heap memory 
+console.log(arr);
