@@ -31,3 +31,5 @@ if (idx !== -1) {
 }
 
 console.log(cart);// splice methods is the mutating methods that will change the original array 
+
+
