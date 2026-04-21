@@ -1,4 +1,5 @@
 # findIndex
+this is use for search an element of the array based on condition if the condition is matches it will return the index of the element 
 
-This folder is for practicing findIndex.
+if nothing is found it will return -1 ;
 
