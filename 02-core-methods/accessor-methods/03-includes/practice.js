@@ -7,3 +7,8 @@ console.log(arr.includes(3,10));// true;
 //  real use case : role checked : 
 // form validation : 
 
+
+let str = "Ashutosh";
+console.log(str.includes("A"));//true  in filter widely   use in the react web apps 
+
+
