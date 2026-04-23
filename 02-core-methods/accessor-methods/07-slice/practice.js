@@ -15,4 +15,5 @@ console.log(arr.slice(0,10)); // it will return all the elements within the boun
 // this methods is not return new array this will create the new array and then return the new array 
 // this is the non mutating methods in js 
 // -ve index will return the reverse order item of the array 
-console.log(arr.slice(-3,-1)); // it will return the elements from the end of the array 
+console.log(arr.slice(-3,-1)); 
+// it will return the elements from the end of the array 
