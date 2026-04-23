@@ -22,7 +22,6 @@ types of callback :
 
 when a callback function nested each other it becomes hard to read and debug this is called callback hell 
 
-
 the solution to the callback is the promises  async and await 
 
  -->

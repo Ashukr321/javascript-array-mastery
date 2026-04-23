@@ -2,8 +2,8 @@
 
 Understanding the difference between shallow and deep copies is crucial for working with nested arrays and objects.
 
-- **Shallow Copy**: Only the top-level elements are copied. Nested elements still reference the original.
-- **Deep Copy**: All levels of the array are recursively copied.
+- **Shallow Copy**: Only the top-level elements are copied. Nested elements still reference the original. {...},Object.assign(); 
+- **Deep Copy**: All levels of the array are recursively copied. , structuredClone   , JSON.parse(JSON.stringify());
 
 ```javascript
 const original = [[1], [2]];
@@ -16,3 +16,11 @@ deep[1][0] = 200;
 console.log(original[1][0]); // 2 (not affected!)
 ```
 Methods like `slice`, `concat`, and the spread operator `[...]` create shallow copies.
+
+
+<!-- Object.assign : internally converted into each items into string 
+
+[1,2,3]
+"1" "2", "3", length 3 then internally copy item on index : 
+ 0   1    2 
+ -->
