@@ -1,4 +1,10 @@
 # join
+<!-- array join methods 
+return the array of item into single string format 
 
-This folder is for practicing join.
+["a","s","h","u"];
+
+
+ -->
+
 
