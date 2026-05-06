@@ -42,3 +42,48 @@ console.log(arr); // [10, 99, 30, 40]
 
 // fill(value, startIndex,endIndex);
 // splice(startIndex, deleteNumberOfElement, addElement);
+
+// array of object : store data in cart
+const cart = [
+    { id: 1, name: "Shoes" },
+    { id: 2, name: "T-shirt" },
+    { id: 3, name: "Watch" }
+];
+
+const index = cart.findIndex(item => item.id === 2);
+// get the index of the card item 
+// use of the findIndex methods 
+// findIndex use for find the index of the product 
+
+// splice methods(startIndex, numberOfItemDelete);
+
+// startIndex is not -1: edge case 
+
+
+if (index !== -1) {
+    cart.splice(index, 1); // remove T-shirt // remove that item from cart 
+
+}
+
+console.log(cart);
+
+const users = [
+    { id: 1, name: "Ashu" },
+    { id: 2, name: "Rahul" }
+];
+
+const index = users.findIndex(u => u.id === 2);
+
+// here we use to update the item 
+users.splice(index, 1, { id: 2, name: "Rahul Kumar" });
+
+console.log(users);
+
+// create the array of task we need to insert into cart 
+let tasks = ["Task1", "Task2", "Task3"];
+
+// Add high priority task at top
+tasks.splice(0, 0, "Urgent Task");
+
+console.log(tasks);
+// findIndex methods find the first match and return the index of the first match element 
