@@ -9,8 +9,8 @@ const apiResponse = {
         age: 21
     },
     1: {
-        name :"Amit",
-        age:22
+        name: "Amit",
+        age: 22
     }
 }
 
@@ -23,15 +23,19 @@ console.log(arrayResponse);
 // Object.entries is also a methods through which we can convert object to array 
 
 
-const user= {
-    name:"Ashutosh",
-    age:21,
+const user = {
+    name: "Ashutosh",
+    age: 21,
 }
 
 
-const userArray = Object.entries(user).map(([key,value])=>console.log(key,value))
-// console.log(userArray); // object key and value converted into array 
+const userArray = Object.entries(user).map(([key, value]) => console.log(key, value))
+// console.log(userArray); // object key and value converted into array
 
-// Object.keys(); return the array of objects  the keys 
-// Object.values(); return the array of object values 
-// Object.entries(); return the array of each key and values of the object 
+// Object.keys(); return the array of objects  the keys
+// Object.values(); return the array of object values
+// Object.entries(); return the array of each key and values of the object
+
+
+// array like object :
+// index, length
