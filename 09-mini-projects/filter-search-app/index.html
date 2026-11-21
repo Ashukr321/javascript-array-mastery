@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Filter &amp; Search App</title>
+<style>
+  :root { --bg: #fff; --fg: #171717; --muted: #737373; --card: #f5f5f5; --line: #e5e5e5; --accent: #d97706; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0a0a0a; --fg: #f5f5f5; --muted: #a3a3a3; --card: #171717; --line: #262626; --accent: #f59e0b; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; font: 14px/1.4 system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+  input, select, button { font: inherit; color: inherit; }
+  input[type="search"], input[type="number"], select { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); }
+  input[type="search"] { width: 100%; margin-bottom: 12px; }
+  input[type="number"] { width: 80px; }
+  .layout { display: grid; grid-template-columns: 180px 1fr; gap: 16px; }
+  @media (max-width: 560px) { .layout { grid-template-columns: 1fr; } }
+  fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 10px; padding: 8px 10px; }
+  legend { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  label { display: flex; gap: 6px; align-items: center; margin: 3px 0; cursor: pointer; }
+  .count { margin-left: auto; color: var(--muted); font-size: 12px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 10px; color: var(--muted); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+  .card b { display: block; }
+  .card small { color: var(--muted); }
+  .price { color: var(--accent); font-weight: 600; }
+  .oos { color: #dc2626; font-size: 12px; }
+  mark { background: color-mix(in srgb, var(--accent) 35%, transparent); color: inherit; border-radius: 2px; }
+  .pager { display: flex; gap: 4px; justify-content: center; margin-top: 12px; }
+  .pager button, .clear { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); cursor: pointer; }
+  .pager button[aria-current="page"] { background: var(--accent); border-color: var(--accent); color: #000; }
+  .pager button:disabled { opacity: .4; cursor: default; }
+  .empty { text-align: center; padding: 24px; color: var(--muted); }
+</style>
+</head>
+<body>
+<input id="q" type="search" placeholder="Search products, brands, categories…" aria-label="Search products" />
+<div class="layout">
+  <aside>
+    <fieldset><legend>Category</legend><div id="categories"></div></fieldset>
+    <fieldset><legend>Brand</legend><div id="brands"></div></fieldset>
+    <fieldset><legend>Price</legend>
+      <label>Min <input id="min" type="number" min="0" placeholder="0" /></label>
+      <label>Max <input id="max" type="number" min="0" placeholder="any" /></label>
+    </fieldset>
+    <label><input id="stock" type="checkbox" /> In stock only</label>
+    <p><button class="clear" id="clear" type="button">Clear filters</button></p>
+  </aside>
+  <main>
+    <div class="toolbar">
+      <span id="summary"></span>
+      <label>Sort
+        <select id="sort">
+          <option value="relevance">Relevance</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+          <option value="rating">Best rated</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </label>
+    </div>
+    <div class="cards" id="results"></div>
+    <nav class="pager" id="pager" aria-label="Pages"></nav>
+  </main>
+</div>
+<script>
+const products = [
+  { id: 1, name: "MacBook Air", brand: "Apple", category: "Laptops", price: 999, rating: 4.7, inStock: true },
+  { id: 2, name: "ThinkPad X1", brand: "Lenovo", category: "Laptops", price: 1299, rating: 4.5, inStock: false },
+  { id: 3, name: "iPhone 15", brand: "Apple", category: "Phones", price: 799, rating: 4.6, inStock: true },
+  { id: 4, name: "Pixel 8", brand: "Google", category: "Phones", price: 699, rating: 4.4, inStock: true },
+  { id: 5, name: "Galaxy S24", brand: "Samsung", category: "Phones", price: 899, rating: 4.5, inStock: true },
+  { id: 6, name: "AirPods Pro", brand: "Apple", category: "Audio", price: 249, rating: 4.6, inStock: true },
+  { id: 7, name: "WH-1000XM5", brand: "Sony", category: "Audio", price: 399, rating: 4.8, inStock: false },
+  { id: 8, name: "Galaxy Buds", brand: "Samsung", category: "Audio", price: 149, rating: 4.1, inStock: true },
+  { id: 9, name: "iPad Air", brand: "Apple", category: "Tablets", price: 599, rating: 4.7, inStock: true },
+  { id: 10, name: "Galaxy Tab S9", brand: "Samsung", category: "Tablets", price: 799, rating: 4.3, inStock: true },
+];
+const fold = (s) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const indexed = products.map((p) => ({ ...p, _search: fold(`${p.name} ${p.brand} ${p.category}`) }));
+const CATEGORIES = [...new Set(products.map((p) => p.category))].toSorted();
+const BRANDS = [...new Set(products.map((p) => p.brand))].toSorted();
+const SORTS = {
+  relevance: () => 0,
+  "price-asc": (a, b) => a.price - b.price,
+  "price-desc": (a, b) => b.price - a.price,
+  rating: (a, b) => b.rating - a.rating || a.price - b.price,
+  name: (a, b) => a.name.localeCompare(b.name),
+};
+const initialState = { query: "", categories: [], brands: [], minPrice: null, maxPrice: null, inStockOnly: false, sort: "relevance", page: 1, pageSize: 6 };
+let state = initialState;
+
+function getView(list, s) {
+  const words = fold(s.query).split(/\s+/).filter(Boolean);
+  const matchesText = (p) => words.every((w) => p._search.includes(w));
+  const matchesRest = (p) =>
+    (s.brands.length === 0 || s.brands.includes(p.brand)) &&
+    (s.minPrice == null || p.price >= s.minPrice) &&
+    (s.maxPrice == null || p.price <= s.maxPrice) &&
+    (!s.inStockOnly || p.inStock);
+  const facetBase = list.filter((p) => matchesText(p) && matchesRest(p));
+  const filtered = facetBase.filter((p) => s.categories.length === 0 || s.categories.includes(p.category));
+  const sorted = filtered.toSorted(SORTS[s.sort]);
+  const totalPages = Math.max(1, Math.ceil(sorted.length / s.pageSize));
+  const page = Math.min(Math.max(1, s.page), totalPages);
+  const start = (page - 1) * s.pageSize;
+  return {
+    items: sorted.slice(start, start + s.pageSize),
+    total: sorted.length, page, totalPages, start, words,
+    categoryCounts: facetBase.reduce((acc, p) => ({ ...acc, [p.category]: (acc[p.category] ?? 0) + 1 }), {}),
+  };
+}
+
+const update = (patch) => { state = { ...state, ...patch, page: "page" in patch ? patch.page : 1 }; render(); };
+const toggle = (arr, v) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+const el = (id) => document.getElementById(id);
+
+function highlight(text, words) {
+  let out = esc(text);
+  for (const w of words) out = out.replace(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), (m) => `<mark>${m}</mark>`);
+  return out;
+}
+
+function checkboxes(container, values, selected, key, counts) {
+  container.innerHTML = values.map((v) =>
+    `<label><input type="checkbox" value="${esc(v)}" ${selected.includes(v) ? "checked" : ""}/> ${esc(v)}${counts ? `<span class="count">${counts[v] ?? 0}</span>` : ""}</label>`
+  ).join("");
+  container.onchange = (e) => update({ [key]: toggle(state[key], e.target.value) });
+}
+
+function render() {
+  const v = getView(indexed, state);
+  checkboxes(el("categories"), CATEGORIES, state.categories, "categories", v.categoryCounts);
+  checkboxes(el("brands"), BRANDS, state.brands, "brands");
+  el("summary").textContent = v.total ? `Showing ${v.start + 1}–${v.start + v.items.length} of ${v.total}` : "0 results";
+  el("results").innerHTML = v.items.length
+    ? v.items.map((p) => `<article class="card"><b>${highlight(p.name, v.words)}</b><small>${esc(p.brand)} · ${esc(p.category)}</small><div><span class="price">$${p.price}</span> ★${p.rating}</div>${p.inStock ? "" : '<div class="oos">Out of stock</div>'}</article>`).join("")
+    : '<div class="empty">No products match. Try clearing some filters.</div>';
+  el("pager").innerHTML = v.totalPages > 1
+    ? `<button data-p="${v.page - 1}" ${v.page === 1 ? "disabled" : ""}>‹</button>` +
+      Array.from({ length: v.totalPages }, (_, i) => `<button data-p="${i + 1}" ${i + 1 === v.page ? 'aria-current="page"' : ""}>${i + 1}</button>`).join("") +
+      `<button data-p="${v.page + 1}" ${v.page === v.totalPages ? "disabled" : ""}>›</button>`
+    : "";
+}
+
+el("pager").onclick = (e) => { const p = e.target.dataset.p; if (p) update({ page: Number(p) }); };
+el("q").oninput = (e) => update({ query: e.target.value });
+el("sort").onchange = (e) => update({ sort: e.target.value });
+el("stock").onchange = (e) => update({ inStockOnly: e.target.checked });
+const num = (s) => (s === "" ? null : Number(s));
+el("min").oninput = (e) => update({ minPrice: num(e.target.value) });
+el("max").oninput = (e) => update({ maxPrice: num(e.target.value) });
+el("clear").onclick = () => {
+  state = initialState;
+  ["q", "min", "max"].forEach((id) => (el(id).value = ""));
+  el("stock").checked = false;
+  el("sort").value = "relevance";
+  render();
+};
+render();
+</script>
+</body>
+</html>

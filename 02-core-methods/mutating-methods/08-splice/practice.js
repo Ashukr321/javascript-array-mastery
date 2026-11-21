@@ -100,3 +100,47 @@ console.log(arr);
 arr.splice(0, arr.length);
 // arr = [];
 console.log(arr);
+
+// ---- More practice ----
+{
+  // splice returns the REMOVED elements
+  const letters = ["a", "b", "c", "d"];
+  const removed = letters.splice(1, 2);
+  console.log(removed, letters); // ["b", "c"] ["a", "d"]
+
+  // insert without removing (deleteCount = 0)
+  letters.splice(1, 0, "x", "y");
+  console.log(letters); // ["a", "x", "y", "d"]
+
+  // no deleteCount: remove everything from start to end
+  const tail = [1, 2, 3, 4, 5];
+  tail.splice(2);
+  console.log(tail); // [1, 2]
+
+  // negative start counts from the end
+  const n = [1, 2, 3, 4];
+  n.splice(-1, 1);
+  console.log(n); // [1, 2, 3]
+
+  // trap: findIndex returns -1, splice(-1, 1) removes the LAST item
+  const cart = [{ id: 1 }, { id: 2 }, { id: 3 }];
+  const i = cart.findIndex((item) => item.id === 99);
+  if (i !== -1) cart.splice(i, 1); // guard keeps the cart safe
+  console.log(cart.length); // 3
+
+  // non-mutating version (ES2023)
+  const base = [10, 20, 30];
+  console.log(base.toSpliced(1, 1, 99), base); // [10, 99, 30] [10, 20, 30]
+
+  // removing inside a loop: go backwards so indexes do not shift under you
+  const values = [1, 2, 2, 3, 2];
+  for (let k = values.length - 1; k >= 0; k--) {
+    if (values[k] === 2) values.splice(k, 1);
+  }
+  console.log(values); // [1, 3]
+}
+
+// --- Exercises ---
+// 1. Write removeById(list, id) that removes the matching object in place and returns the removed item (or null).
+// 2. Move the item at index 3 to index 0 using two splice calls.
+// 3. Write insertAt(arr, index, item) that returns a NEW array (use toSpliced or slice, not splice).

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Array Dashboard</title>
+<style>
+  :root { --bg: #fff; --fg: #171717; --muted: #737373; --card: #f5f5f5; --line: #e5e5e5; --accent: #d97706; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0a0a0a; --fg: #f5f5f5; --muted: #a3a3a3; --card: #171717; --line: #262626; --accent: #f59e0b; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 16px; font: 14px/1.4 system-ui, sans-serif; background: var(--bg); color: var(--fg); }
+  h1 { font-size: 18px; margin: 0 0 12px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  select { font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--fg); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .kpi, .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .kpi b { display: block; font-size: 20px; }
+  .kpi span { color: var(--muted); font-size: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+  .bar { display: grid; grid-template-columns: 90px 1fr 80px; gap: 8px; align-items: center; margin: 6px 0; }
+  .track { background: var(--line); border-radius: 4px; height: 10px; overflow: hidden; }
+  .fill { background: var(--accent); height: 100%; transition: width .3s; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  ol { margin: 0; padding-left: 20px; }
+  .up { color: #16a34a; } .down { color: #dc2626; }
+</style>
+</head>
+<body>
+<h1>Sales dashboard</h1>
+<div class="row">
+  <label>Status
+    <select id="status">
+      <option value="valid">All except cancelled</option>
+      <option value="delivered">Delivered only</option>
+      <option value="pending">Pending only</option>
+      <option value="all">Everything</option>
+    </select>
+  </label>
+</div>
+<div class="kpis" id="kpis"></div>
+<div class="grid">
+  <section class="panel"><h2>Revenue by category</h2><div id="categories"></div></section>
+  <section class="panel"><h2>Monthly trend</h2><div id="months"></div></section>
+  <section class="panel"><h2>Top customers</h2><ol id="customers"></ol></section>
+</div>
+<script>
+const orders = [
+  { id: 1, customer: "Asha", product: "Laptop", category: "Electronics", qty: 1, price: 900, date: "2024-01-05", status: "delivered" },
+  { id: 2, customer: "Ravi", product: "Mouse", category: "Electronics", qty: 3, price: 25, date: "2024-01-12", status: "delivered" },
+  { id: 3, customer: "Meera", product: "Desk", category: "Furniture", qty: 1, price: 300, date: "2024-02-02", status: "delivered" },
+  { id: 4, customer: "Asha", product: "Chair", category: "Furniture", qty: 2, price: 150, date: "2024-02-18", status: "cancelled" },
+  { id: 5, customer: "John", product: "Monitor", category: "Electronics", qty: 2, price: 220, date: "2024-03-03", status: "delivered" },
+  { id: 6, customer: "Ravi", product: "Notebook", category: "Stationery", qty: 10, price: 4, date: "2024-03-09", status: "delivered" },
+  { id: 7, customer: "Meera", product: "Laptop", category: "Electronics", qty: 1, price: 950, date: "2024-03-21", status: "pending" },
+  { id: 8, customer: "John", product: "Pen", category: "Stationery", qty: 20, price: 1.5, date: "2024-03-28", status: "delivered" },
+];
+const amount = (o) => o.qty * o.price;
+const money = (n) => "$" + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const sumBy = (list, keyFn) => list.reduce((acc, o) => { const k = keyFn(o); acc[k] = (acc[k] ?? 0) + amount(o); return acc; }, {});
+const FILTERS = {
+  valid: (o) => o.status !== "cancelled",
+  delivered: (o) => o.status === "delivered",
+  pending: (o) => o.status === "pending",
+  all: () => true,
+};
+const el = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+function bars(entries) {
+  const max = Math.max(1, ...entries.map(([, v]) => v));
+  return entries.map(([k, v]) =>
+    `<div class="bar"><span>${esc(k)}</span><div class="track"><div class="fill" style="width:${(v / max) * 100}%"></div></div><span class="num">${money(v)}</span></div>`
+  ).join("") || "<p>No orders.</p>";
+}
+
+function render() {
+  const list = orders.filter(FILTERS[el("status").value]);
+  const revenue = list.reduce((s, o) => s + amount(o), 0);
+  const kpis = [
+    ["Revenue", money(revenue)],
+    ["Orders", list.length],
+    ["Avg order", money(list.length ? revenue / list.length : 0)],
+    ["Items sold", list.reduce((s, o) => s + o.qty, 0)],
+    ["Customers", new Set(list.map((o) => o.customer)).size],
+  ];
+  el("kpis").innerHTML = kpis.map(([label, v]) => `<div class="kpi"><b>${v}</b><span>${label}</span></div>`).join("");
+
+  el("categories").innerHTML = bars(Object.entries(sumBy(list, (o) => o.category)).toSorted((a, b) => b[1] - a[1]));
+
+  const months = Object.entries(sumBy(list, (o) => o.date.slice(0, 7))).toSorted(([a], [b]) => a.localeCompare(b));
+  el("months").innerHTML = bars(months) + months.map(([m, v], i) => {
+    if (i === 0) return "";
+    const pct = Math.round(((v - months[i - 1][1]) / months[i - 1][1]) * 100);
+    return `<div class="num ${pct >= 0 ? "up" : "down"}">${m}: ${pct >= 0 ? "+" : ""}${pct}%</div>`;
+  }).join("");
+
+  el("customers").innerHTML = Object.entries(sumBy(list, (o) => o.customer))
+    .toSorted((a, b) => b[1] - a[1]).slice(0, 3)
+    .map(([name, v]) => `<li>${esc(name)} — ${money(v)}</li>`).join("") || "<li>No customers.</li>";
+}
+el("status").addEventListener("change", render);
+render();
+</script>
+</body>
+</html>
